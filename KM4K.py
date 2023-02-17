@@ -29,7 +29,7 @@ def add_nfc(cur):
     print("Touch your Suica")
     idm = read_nfc()
     if idm:
-        cur.execute("SELECT * FROM users WHERE idm=?", (idm,))
+        cur.execute("SELECT * FROM users WHERE idm=?", (idm, ))
         res = cur.fetchall()
         if len(res) > 0:
             print("This key has already registered.")
@@ -40,13 +40,13 @@ def add_nfc(cur):
 
 def delete_nfc(cur):
     name = input("name> ")
-    cur.execute("SELECT * FROM users WHERE name=?", (name,))
+    cur.execute("SELECT * FROM users WHERE name=?", (name, ))
     res = cur.fetchall()
     if len(res) == 0:
         print("Unregistered name:" + name)
     else:
         # sql_del(res)
-        cur.execute("DELETE FROM users WHERE name=?", (name,))
+        cur.execute("DELETE FROM users WHERE name=?", (name, ))
         print("Deleted (name:" + name + ")")
 
 
@@ -60,14 +60,14 @@ def read_nfc():
                 idm = binascii.hexlify(tag.idm)
                 return idm
 
+
 def check_card_manager(idm):
     url = os.environ["VERIFY_API_URL"]
-    payload = json.dumps({
-      "idm": idm
-    })
+    payload = json.dumps({"idm": idm})
     headers = {
-      'X-Api-Key': os.environ["API_KEY"],
-      'Content-Type': 'application/json'
+        'X-Api-Key': os.environ["API_KEY"],
+        'Content-Type': 'application/json',
+        'User-Agent': "km4k/0.0.1 (https://github.com/ueckoken/KM4K)",
     }
     try:
         response = requests.request("GET", url, headers=headers, data=payload)
@@ -79,6 +79,7 @@ def check_card_manager(idm):
         print(e)
         return False
 
+
 def start_system(cur, isopen, okled_pin, ngled_pin):
     while True:
         idm = read_nfc()
@@ -86,7 +87,7 @@ def start_system(cur, isopen, okled_pin, ngled_pin):
             # Card Managerで登録されているか確認
             isRegisteredSSO = check_card_manager(idm.decode())
             print("is registered sso", isRegisteredSSO)
-            cur.execute("SELECT * FROM users WHERE idm=?", (idm,))
+            cur.execute("SELECT * FROM users WHERE idm=?", (idm, ))
             res = cur.fetchall()
             if len(res) > 0 or isRegisteredSSO:
                 print("Registered (idm:" + idm.decode() + ")")
